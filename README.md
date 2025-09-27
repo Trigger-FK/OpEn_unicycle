@@ -20,6 +20,10 @@ v \sin(\theta) \\
 \omega
 \end{bmatrix}
 ```
+<p align="center">
+  <img src="./images/unicycle_robot.png" alt="Unicycle Robot" width="300"/>
+</p>
+
 - **NMPC controller** using OpEn optimization engine
 ```math
 \min_{u} \sum_{k=0}^{N-1} \|x_k - x_{ref,k}\|_Q^2 + \|u_k\|_R^2 + \|x_N - x_{ref,N}\|_{Q_N}^2
@@ -128,13 +132,13 @@ After simulation, the results will be shown in plots:
 ![State Plot](./images/state_plot.png)
 ![Trajectory Plot](./images/trajectory_plot.png)
 
-## Features
+<!-- ## Features
 
 - **Fast optimization**: Uses Rust-based OpEn solver for real-time performance
 - **Configurable trajectories**: Easy to modify reference trajectory patterns
 - **TCP interface**: Optimizer runs as a separate process for efficient communication
 - **Modular design**: Clean separation of dynamics, cost functions, and optimization
-- **Comprehensive visualization**: Multiple plot types for analysis
+- **Comprehensive visualization**: Multiple plot types for analysis -->
 
 ## Troubleshooting
 
