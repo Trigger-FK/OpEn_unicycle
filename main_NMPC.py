@@ -1,5 +1,5 @@
-# main_normal.py
-from optimizer.optimizer import build_normal_optimizer, MPCConfig
+# main.py
+from optimizer.optimizer import build_optimizer, MPCConfig
 from model.dynamics import unicycle_dynamics
 from trajectory.ref_traj_utils import build_refs
 import numpy as np
@@ -33,7 +33,7 @@ def connect_optimizer(optimizer_name, ports_to_try):
 
 
 def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
-    """Run the main simulation loop for the normal MPC."""
+    """Run the main simulation loop for the MPC."""
     Ts = cfg.sampling_time
     N = cfg.horizon_len
     nx, nu = cfg.state_dim, cfg.input_dim
@@ -127,13 +127,13 @@ def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
 
 
 def main(config_path=None):
-    """Main entry point for normal optimizer simulation."""
+    """Main entry point for optimizer simulation."""
     cfg = MPCConfig.from_yaml(config_path)
     print("This is the main entry point for the optimizer module.")
 
     Ts = cfg.sampling_time
     sampling_time_str = str(Ts).replace('.', '_')
-    optimizer_name = f"build/unicycle_normal/horizon_{cfg.horizon_len}/sampling_{sampling_time_str}"
+    optimizer_name = f"build/unicycle/horizon_{cfg.horizon_len}/sampling_{sampling_time_str}"
     ports_to_try = [8333, 8334, 8335, 8336]
     mng = connect_optimizer(optimizer_name, ports_to_try)
     run_simulation(cfg, mng)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     user_input = input("Do you want to build the optimizer? (y/n): ").strip().lower()
     if user_input == "y":
         print("Setting up and building the optimizer...")
-        build_normal_optimizer(config_path="config/NMPC_config.yaml")
+        build_optimizer(config_path="config/NMPC_config.yaml")
     else:
         print("Skipping optimizer build.")
     print("Starting main simulation...")

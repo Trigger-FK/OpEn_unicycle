@@ -1,4 +1,4 @@
-# mpc/optimizer_normal.py
+# optimizer/optimizer.py
 import casadi as cs
 import opengen as og
 from model.dynamics import unicycle_dynamics
@@ -38,7 +38,7 @@ class MPCConfig:
         )
 
 
-def build_normal_optimizer(config_path=None):
+def build_optimizer(config_path=None):
     cfg = MPCConfig.from_yaml(config_path) if config_path else MPCConfig()
 
     nx, nu, N = cfg.state_dim, cfg.input_dim, cfg.horizon_len

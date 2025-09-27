@@ -1,4 +1,4 @@
-# mpc/cost.py
+# optimizer/cost.py
 import casadi as cs
 
 def stage_cost(x, x_ref, Q, u, R):

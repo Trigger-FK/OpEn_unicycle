@@ -1,5 +1,7 @@
 # OpEn_unicycle
 
+[![License: BSD 2-Clause](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
+
 This repository contains an implementation of a Nonlinear Model Predictive Control (NMPC) for a unicycle model using the OpEn (Optimization Engine) package.  
 The code is structured to allow easy configuration and simulation of the unicycle's trajectory tracking capabilities.
 
@@ -140,3 +142,16 @@ After simulation, the results will be shown in plots:
 - **OpEn build fails**: Check that all dependencies in `requirements.txt` are installed
 - **TCP connection errors**: The optimizer automatically tries multiple ports (8333-8336)
 - **Slow performance**: Reduce horizon length or increase sampling time in config
+
+## License
+
+This project is licensed under the BSD 2-Clause License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Fumiya Matsuzaki** - [Trigger-FK](https://github.com/Trigger-FK)
+
+## Acknowledgments
+
+- [OpEn (Optimization Engine)](https://alphaville.github.io/optimization-engine/) - Fast and accurate embedded optimization
+- [CasADi](https://web.casadi.org/) - Symbolic framework for automatic differentiation
