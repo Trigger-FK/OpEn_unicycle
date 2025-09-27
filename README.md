@@ -7,7 +7,21 @@ The code is structured to allow easy configuration and simulation of the unicycl
 
 The project implements:
 - **Unicycle dynamics model** with position $(x, y)$ and orientation $(\theta)$ states
+```math
+f(x) = \begin{bmatrix}
+\dot{x} \\
+\dot{y} \\
+\dot{\theta}
+\end{bmatrix} = \begin{bmatrix}
+v \cos(\theta) \\
+v \sin(\theta) \\
+\omega
+\end{bmatrix}
+```
 - **NMPC controller** using OpEn optimization engine
+```math
+\min_{u} \sum_{k=0}^{N-1} \|x_k - x_{ref,k}\|_Q^2 + \|u_k\|_R^2 + \|x_N - x_{ref,N}\|_{Q_N}^2
+``` 
 - **Reference trajectory generation** (figure-8 pattern)
 - **Real-time simulation** with configurable parameters
 - **Visualization** of trajectory tracking performance
