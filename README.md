@@ -6,7 +6,7 @@ The code is structured to allow easy configuration and simulation of the unicycl
 ## Overview
 
 The project implements:
-- **Unicycle dynamics model** with position (x, y) and orientation (θ) states
+- **Unicycle dynamics model** with position $(x, y)$ and orientation $(\theta)$ states
 - **NMPC controller** using OpEn optimization engine
 - **Reference trajectory generation** (figure-8 pattern)
 - **Real-time simulation** with configurable parameters
@@ -76,8 +76,8 @@ python main_NMPC.py
    - The simulation will run for 30 seconds (configurable)
    - Real-time trajectory tracking performance is displayed
    - Results are visualized in plots showing:
-     - State trajectories (x, y, θ) vs reference
-     - Control inputs (v, ω) over time
+     - State trajectories $(x, y, \theta)$ vs reference
+     - Control inputs $(v, \omega)$ over time
      - 2D trajectory plot (x-y plane)
 
 ### Configuration
