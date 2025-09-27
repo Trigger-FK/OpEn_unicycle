@@ -1,0 +1,15 @@
+# Core optimization and numerical computation
+casadi>=3.5.0
+opengen>=0.7.0
+numpy>=1.20.0
+
+# Visualization
+matplotlib>=3.5.0
+
+# Configuration management
+PyYAML>=6.0
+
+# Standard library modules (no installation needed):
+# - os
+# - datetime  
+# - typing
