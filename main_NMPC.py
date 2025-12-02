@@ -1,39 +1,24 @@
 # main.py
 from optimizer.optimizer import build_optimizer, MPCConfig
+from utils.connecter import connect_optimizer
+from utils.plotter import plot_image
 from model.dynamics import unicycle_dynamics
 from trajectory.ref_traj_utils import build_refs
 import numpy as np
 from datetime import datetime
 import opengen as og
-import matplotlib.pyplot as plt
-import os
-
-
-def connect_optimizer(optimizer_name, ports_to_try):
-    """Try to connect to the optimizer TCP server on available ports."""
-    mng = None
-    for port in ports_to_try:
-        try:
-            print(f"Trying to connect to TCP server on port {port}...")
-            mng = og.tcp.OptimizerTcpManager(optimizer_name, port=port)
-            mng.start()
-            print(f"Successfully connected to TCP server on port {port}")
-            return mng
-        except Exception as e:
-            print(f"Failed to connect on port {port}: {e}")
-            if mng:
-                try:
-                    mng.kill()
-                except:
-                    pass
-            mng = None
-    print("Failed to connect to TCP server on any port.")
-    print("Please make sure the optimizer was built correctly by running generator.")
-    exit(1)
 
 
 def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
-    """Run the main simulation loop for the MPC."""
+    """
+    Run the main simulation loop for the MPC.
+    Args:
+        cfg (MPCConfig): Configuration for the MPC.
+        mng (opengen.tcp.OptimizerTcpManager): Connected optimizer manager.
+        sim_time (float): Total simulation time in seconds.
+        sim_dt (float): Simulation time step in seconds.
+    """
+
     Ts = cfg.sampling_time
     N = cfg.horizon_len
     nx, nu = cfg.state_dim, cfg.input_dim
@@ -76,7 +61,6 @@ def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
                 sol = np.array(status["solution"], dtype=float)
                 U_guess = sol.copy()
                 u = sol[:nu]
-                MPC_interval_count = 0 
             else:
                 u = U_guess[:nu] if U_guess.size >= nu else np.zeros(nu)
 
@@ -96,38 +80,16 @@ def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
     print("Closing TCP connection...")
     mng.kill()
 
-    # Plot
-    t = np.arange(steps)*sim_dt
-    labels_x = ['x', 'y', 'theta']
-    labels_u = ['v', 'omega']
-
-    fig, axs = plt.subplots(nx + nu, 1, figsize=(10, 2*(nx + nu)), sharex=True)
-    for i in range(nx):
-        axs[i].plot(t, x_hist[:, i], label=labels_x[i])
-        axs[i].plot(t, xref_hist[:, i], '--', label=f'{labels_x[i]}_ref')
-        axs[i].set_ylabel(labels_x[i]); axs[i].grid(True); axs[i].legend()
-    for i in range(nu):
-        axs[nx + i].plot(t, u_hist[:, i], label=labels_u[i])
-        axs[nx + i].set_ylabel(labels_u[i]); axs[nx + i].grid(True); axs[nx + i].legend()
-    axs[-1].set_xlabel('Time [s]')
-    plt.tight_layout(); plt.show()
-
-    # Plot x-y trajectory
-    plt.figure(figsize=(8, 6))
-    plt.plot(x_hist[:, 0], x_hist[:, 1], label="Trajectory")
-    plt.plot(xref_hist[:, 0], xref_hist[:, 1], '--', label="Reference")
-    plt.xlabel("x [m]")
-    plt.ylabel("y [m]")
-    plt.title("x-y Trajectory")
-    plt.legend()
-    plt.axis("equal")
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+    plot_image(x_hist, xref_hist, u_hist, steps, sim_dt)
 
 
 def main(config_path=None):
-    """Main entry point for optimizer simulation."""
+    """
+    Main entry point for optimizer simulation.
+    Args:
+        config_path (str): Path to the MPC configuration YAML file.
+    """
+
     cfg = MPCConfig.from_yaml(config_path)
     print("This is the main entry point for the optimizer module.")
 
