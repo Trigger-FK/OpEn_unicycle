@@ -8,20 +8,21 @@ The code is structured to allow easy configuration and simulation of the unicycl
 ## Overview
 
 The project implements:
-- **Unicycle dynamics model** with position $(x, y)$ and orientation $(\theta)$ states
+- U**nicycle mobile robot model**
 ```math
-f(x) = \begin{bmatrix}
-\dot{x} \\
-\dot{y} \\
+f(\bm{x}, \bm{u}) = \begin{bmatrix}
+\dot{p}_x \\
+\dot{p}_y \\
 \dot{\theta}
 \end{bmatrix} = \begin{bmatrix}
-v \cos(\theta) \\
-v \sin(\theta) \\
+v^{\mathcal{B}} \cos\theta \\
+v^{\mathcal{B}} \sin\theta \\
 \omega
 \end{bmatrix}
 ```
+where $\bm{x} = [p_x,\ p_y,\ \theta]^T$ is the state vector with the position $(p_x, p_y)$ and orientation $(\theta)$ in the inertial frame, $v^{\mathcal{B}}$ is the linear velocity in the body frame and $\omega$ is the angular velocity.
 <p align="center">
-  <img src="./images/unicycle_robot.png" alt="Unicycle Robot" width="300"/>
+  <img src="./images/unicycle_model.png" alt="Unicycle Robot" width="400"/>
 </p>
 
 - **NMPC controller** using OpEn optimization engine
@@ -36,8 +37,10 @@ v \sin(\theta) \\
 
 ```
 OpEn_unicycle/
+├── build/                   # Generated OpEn optimizers (auto-created)
 ├── config/
 │   └── NMPC_config.yaml      # MPC configuration parameters
+├── images/                   # Images for README
 ├── model/
 │   ├── __init__.py
 │   └── dynamics.py           # Unicycle dynamics model
@@ -48,7 +51,6 @@ OpEn_unicycle/
 ├── trajectory/
 │   ├── __init__.py
 │   └── ref_traj_utils.py    # Reference trajectory generation
-├── build/                   # Generated OpEn optimizers (auto-created)
 ├── main_NMPC.py            # Main simulation script
 ├── requirements.txt        # Python dependencies
 └── README.md
@@ -105,16 +107,16 @@ python main_NMPC.py
 The MPC controller can be configured by editing `config/NMPC_config.yaml`:
 
 ```yaml
-# MPC Parameters
-state_dim: 3              # State dimension [x, y, θ]
-input_dim: 2              # Input dimension [v, ω]
-sampling_time: 0.1        # MPC sampling time (seconds)
-horizon_len: 20           # Prediction horizon length
-umin: [-10, -10]         # Control input lower bounds [v_min, ω_min]
-umax: [10, 10]           # Control input upper bounds [v_max, ω_max]
-Q: [1, 1, 1]             # State tracking weights [x, y, θ]
-R: [0.01, 0.01]          # Control input weights [v, ω]
-QN: [2, 2, 2]            # Terminal state weights [x, y, θ]
+# MPC Params
+state_dim: 3
+input_dim: 2
+sampling_time: 0.1
+horizon_len: 10
+umin: [0.0, -1.57]
+umax: [0.6, 1.57]
+Q:    [20, 30, 2]
+R:    [0.1, 0.01]
+QN:   [40, 60, 4]
 ```
 
 ### Key Parameters
@@ -129,8 +131,7 @@ QN: [2, 2, 2]            # Terminal state weights [x, y, θ]
 ## Results
 
 After simulation, the results will be shown in plots:
-![State Plot](./images/state_plot.png)
-![Trajectory Plot](./images/trajectory_plot.png)
+![Result](./images/result.png)
 
 <!-- ## Features
 
