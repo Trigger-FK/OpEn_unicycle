@@ -10,7 +10,7 @@ The code is structured to allow easy configuration and simulation of the unicycl
 The project implements:
 - U**nicycle mobile robot model**
 ```math
-f(\bm{x}, \bm{u}) = \begin{bmatrix}
+f(x, u) = \begin{bmatrix}
 \dot{p}_x \\
 \dot{p}_y \\
 \dot{\theta}
@@ -20,7 +20,7 @@ v^{\mathcal{B}} \sin\theta \\
 \omega
 \end{bmatrix}
 ```
-where $\bm{x} = [p_x,\ p_y,\ \theta]^T$ is the state vector with the position $(p_x, p_y)$ and orientation $(\theta)$ in the inertial frame, $v^{\mathcal{B}}$ is the linear velocity in the body frame and $\omega$ is the angular velocity.
+where $x = [p_x,\ p_y,\ \theta]^T$ is the state vector with the position $(p_x, p_y)$ and orientation $(\theta)$ in the inertial frame, $v^{\mathcal{B}}$ is the linear velocity in the body frame and $\omega$ is the angular velocity.
 <p align="center">
   <img src="./images/unicycle_model.png" alt="Unicycle Robot" width="400"/>
 </p>
