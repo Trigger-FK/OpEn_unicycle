@@ -5,6 +5,9 @@ sampling_time: 0.1
 horizon_len: 10
 umin: [0.0, -1.57]
 umax: [0.6, 1.57]
-Q:    [20, 30, 2]
-R:    [0.1, 0.01]
-QN:   [40, 60, 4]
+Q:    [20, 30, 2]   # stage weight on state error [x, y, theta]
+R:    [0.1, 0.01]   # stage weight on input [v, omega]
+QN:   [40, 60, 4]   # terminal weight on state error [x, y, theta]
+
+# Reference trajectory pattern: sin | circle | figure8
+trajectory: figure8
