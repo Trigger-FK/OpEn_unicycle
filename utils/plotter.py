@@ -25,21 +25,29 @@ def plot_image(state, state_ref, input,
     labels_x = ['x', 'y', 'theta']
     labels_u = ['v', 'omega']
 
+    # High-contrast colors and thicker lines for readability.
+    COLOR_ACTUAL = '#0072B2'   # strong blue  -> actual trajectory / state
+    COLOR_REF    = '#D55E00'   # vivid orange -> reference
+    COLOR_INPUT  = '#009E73'   # green        -> control input
+    LW_ACTUAL = 3.0
+    LW_REF    = 2.0
 
     fig = plt.figure(figsize=(16, 2*(nx + nu)))
     gs = gridspec.GridSpec(nx + nu, 2, width_ratios=[1, 2])
 
     # Left side: x-y Trajectory
     ax_traj = fig.add_subplot(gs[:, 0])
-    ax_traj.plot(x_hist[:, 0], 
-                 x_hist[:, 1], 
-                 label="Trajectory", 
-                 color='#1a5780')
-    ax_traj.plot(xref_hist[:, 0], 
-                 xref_hist[:, 1], 
-                 '--', 
-                 label="Reference", 
-                 color='#b7b7b7')
+    ax_traj.plot(x_hist[:, 1],
+                 x_hist[:, 0],
+                 label="Trajectory",
+                 color=COLOR_ACTUAL,
+                 linewidth=LW_ACTUAL)
+    ax_traj.plot(xref_hist[:, 1],
+                 xref_hist[:, 0],
+                 '--',
+                 label="Reference",
+                 color=COLOR_REF,
+                 linewidth=LW_REF)
     ax_traj.set_xlabel("x [m]")
     ax_traj.set_ylabel("y [m]")
     ax_traj.set_title("x-y Trajectory")
@@ -50,21 +58,24 @@ def plot_image(state, state_ref, input,
     # Right side: State/Input transitions
     axs = [fig.add_subplot(gs[i, 1]) for i in range(nx + nu)]
     for i in range(nx):
-        axs[i].plot(t, x_hist[:, i], 
-                    label=labels_x[i], 
-                    color='#1a5780')
-        axs[i].plot(t, xref_hist[:, i], 
-                    '--', 
-                    label=f'{labels_x[i]}_ref', 
-                    color='#b7b7b7')
+        axs[i].plot(t, x_hist[:, i],
+                    label=labels_x[i],
+                    color=COLOR_ACTUAL,
+                    linewidth=LW_ACTUAL)
+        axs[i].plot(t, xref_hist[:, i],
+                    '--',
+                    label=f'{labels_x[i]}_ref',
+                    color=COLOR_REF,
+                    linewidth=LW_REF)
         axs[i].set_xlim(0, t[-1])
         axs[i].set_ylabel(labels_x[i])
         axs[i].grid(True)
         axs[i].legend()
     for i in range(nu):
-        axs[nx + i].plot(t, u_hist[:, i], 
-                         label=labels_u[i], 
-                         color='#1a5780')
+        axs[nx + i].plot(t, u_hist[:, i],
+                         label=labels_u[i],
+                         color=COLOR_INPUT,
+                         linewidth=LW_ACTUAL)
         axs[nx + i].set_xlim(0, t[-1])
         axs[nx + i].set_ylabel(labels_u[i])
         axs[nx + i].grid(True)

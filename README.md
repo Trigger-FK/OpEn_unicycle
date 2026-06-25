@@ -133,7 +133,7 @@ trajectory: figure8   # sin | circle | figure8
 ## Results
 
 After simulation, the results will be shown in plots:
-![Result](./images/result.png)
+![Result](./images/result.svg)
 
 <!-- ## Features
 
