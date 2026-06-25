@@ -8,7 +8,7 @@ import numpy as np
 from datetime import datetime
 
 
-def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
+def run_simulation(cfg, mng, sim_time=20.0, sim_dt=1e-3):
     """
     Run the main simulation loop for the MPC.
     Args:

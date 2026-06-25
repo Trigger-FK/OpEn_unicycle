@@ -96,9 +96,10 @@ def build_optimizer(config_path=None):
     # terminal cost
     total_cost += terminal_cost(xk, xref_k(N), QNp)
 
-    # Bounds on U (stage-wise rectangle)
-    umin = list(cfg.umin) if cfg.umin is not None else None
-    umax = list(cfg.umax) if cfg.umax is not None else None
+    # Bounds on U: OpEn's Rectangle must match the full decision-variable
+    # dimension (nu*N), so repeat the per-stage input bounds for every stage.
+    umin = list(cfg.umin) * N
+    umax = list(cfg.umax) * N
     bounds = og.constraints.Rectangle(umin, umax)
 
     # Build problem
