@@ -29,7 +29,7 @@ where $x = [p_x,\ p_y,\ \theta]^T$ is the state vector with the position $(p_x, 
 ```math
 \min_{u} \sum_{k=0}^{N-1} \|x_k - x_{ref,k}\|_Q^2 + \|u_k\|_R^2 + \|x_N - x_{ref,N}\|_{Q_N}^2
 ``` 
-- **Reference trajectory generation** (figure-8 pattern)
+- **Reference trajectory generation** (selectable: sine, circle, or figure-8 pattern)
 - **Real-time simulation** with configurable parameters
 - **Visualization** of trajectory tracking performance
 
@@ -117,6 +117,7 @@ umax: [0.6, 1.57]
 Q:    [20, 30, 2]
 R:    [0.1, 0.01]
 QN:   [40, 60, 4]
+trajectory: figure8   # sin | circle | figure8
 ```
 
 ### Key Parameters
@@ -127,6 +128,7 @@ QN:   [40, 60, 4]
   - `Q`: Penalizes state tracking errors
   - `R`: Penalizes control effort
   - `QN`: Terminal cost weights (typically higher than Q)
+- **Trajectory**: Reference pattern to track — `sin`, `circle`, or `figure8`
 
 ## Results
 

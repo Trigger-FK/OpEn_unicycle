@@ -8,8 +8,14 @@ import yaml
 
 
 class MPCConfig:
+    """Container for all NMPC parameters (loaded from the YAML config).
+
+    Weights are diagonal: Q (stage state error), R (stage input effort) and
+    QN (terminal state error). ``trajectory`` selects the reference pattern.
+    """
+
     def __init__(self, state_dim=3, input_dim=2, sampling_time=0.1, horizon_len=20,
-                 umin=None, umax=None, Q=None, R=None, Qt=None):
+                 umin=None, umax=None, Q=None, R=None, QN=None, trajectory="figure8"):
         self.state_dim     = state_dim
         self.input_dim     = input_dim
         self.sampling_time = sampling_time
@@ -18,13 +24,16 @@ class MPCConfig:
         self.umax          = umax if umax is not None else [10, 10]
         self.Q             = Q if Q is not None else [1, 1, 0.1]
         self.R             = R if R is not None else [0.01, 0.01]
-        self.Qt            = Qt if Qt is not None else [1, 1, 0.1]
+        self.QN            = QN if QN is not None else [1, 1, 0.1]
+        self.trajectory    = trajectory
 
 
     @classmethod
     def from_yaml(cls, yaml_path):
         with open(yaml_path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
+        # Accept the legacy key "Qt" as a fallback for backward compatibility.
+        QN = data.get('QN', data.get('Qt', [1, 1, 0.1]))
         return cls(
             state_dim     = data.get('state_dim', 3),
             input_dim     = data.get('input_dim', 2),
@@ -34,7 +43,8 @@ class MPCConfig:
             umax          = data.get('umax', [10, 10]),
             Q             = data.get('Q', [1, 1, 0.1]),
             R             = data.get('R', [0.01, 0.01]),
-            Qt            = data.get('Qt', [1, 1, 0.1]),
+            QN            = QN,
+            trajectory    = data.get('trajectory', 'figure8'),
         )
 
 
@@ -54,15 +64,16 @@ def build_optimizer(config_path=None):
     # [ x0 (nx) ;
     #   Xref_flat (nx*(N+1)) ;
     #   Uref_flat (nu*N) ;
-    #   Q(nx) ; Qt(nx) ; R(nu) ]
+    #   Q(nx) ; QN(nx) ; R(nu) ]
+    # The runtime parameter vector built in main_NMPC.py must follow this order.
     # -----------------------------
     x0      = cs.MX.sym("x0", nx)
     Xref    = cs.MX.sym("Xref", nx*(N+1))
     Uref    = cs.MX.sym("Uref", nu*N)
     Qp      = cs.MX.sym("Q", nx)
-    Qtp     = cs.MX.sym("Qt", nx)
+    QNp     = cs.MX.sym("QN", nx)
     Rp      = cs.MX.sym("R", nu)
-    P       = cs.vertcat(x0, Xref, Uref, Qp, Qtp, Rp)
+    P       = cs.vertcat(x0, Xref, Uref, Qp, QNp, Rp)
 
 
     # set the refrence vectors
@@ -83,7 +94,7 @@ def build_optimizer(config_path=None):
         total_cost += stage_cost(xk, xref_k(k), Qp, uk, Rp)
         xk = unicycle_dynamics(xk, uk, dt)
     # terminal cost
-    total_cost += terminal_cost(xk, xref_k(N), Qtp)
+    total_cost += terminal_cost(xk, xref_k(N), QNp)
 
     # Bounds on U (stage-wise rectangle)
     umin = list(cfg.umin) if cfg.umin is not None else None

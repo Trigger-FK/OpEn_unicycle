@@ -59,7 +59,15 @@ def unwrap(prev, ang):
     return prev + d
 
 
-def build_refs(t0, N, Ts, th0=None):
+# Registry of available reference patterns, selectable from the config.
+TRAJECTORIES = {
+    "sin": traj_sin,
+    "circle": traj_circle,
+    "figure8": traj_figure8,
+}
+
+
+def build_refs(t0, N, Ts, th0=None, trajectory="figure8"):
     """
     Build reference state and input trajectories for horizon N.
     Args:
@@ -67,10 +75,19 @@ def build_refs(t0, N, Ts, th0=None):
         N (int): Horizon length.
         Ts (float): Sampling time.
         th0 (float): Previous heading angle for unwrapping. If None, no unwrapping is done.
+        trajectory (str): Reference pattern name, one of TRAJECTORIES.
     Returns:
         Xref (np.ndarray): Reference state trajectory of shape (N+1, nx).
         Uref (np.ndarray): Reference input trajectory of shape (N, nu).
     """
+    try:
+        traj_fn = TRAJECTORIES[trajectory]
+    except KeyError:
+        raise ValueError(
+            f"Unknown trajectory '{trajectory}'. "
+            f"Choose one of {list(TRAJECTORIES)}."
+        )
+
     nx, nu = 3, 2
     Xref = np.zeros((N+1, nx))
     Uref = np.zeros((N, nu))
@@ -78,15 +95,15 @@ def build_refs(t0, N, Ts, th0=None):
     prev_th = th0
     for k in range(N):
         t = t0 + k*Ts
-        xd, yd, th, vref, omegaref = traj_figure8(t)
+        xd, yd, th, vref, omegaref = traj_fn(t)
         if prev_th is not None:
             th = unwrap(prev_th, th)
         prev_th = th
         Xref[k, :] = [xd, yd, th]
         Uref[k, :] = [vref, omegaref]
-        
+
     # terminal
-    xdN, ydN, thN, *_ = traj_figure8(t0 + N*Ts)
+    xdN, ydN, thN, *_ = traj_fn(t0 + N*Ts)
     if prev_th is not None:
         thN = unwrap(prev_th, thN)
     Xref[N, :] = [xdN, ydN, thN]

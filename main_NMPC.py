@@ -1,4 +1,4 @@
-# main.py
+# main_NMPC.py
 from optimizer.optimizer import build_optimizer, MPCConfig
 from utils.connecter import connect_optimizer
 from utils.plotter import plot_image
@@ -6,7 +6,6 @@ from model.dynamics import unicycle_dynamics
 from trajectory.ref_traj_utils import build_refs
 import numpy as np
 from datetime import datetime
-import opengen as og
 
 
 def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
@@ -31,30 +30,32 @@ def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
     u_hist = np.zeros((steps, nu))
     xref_hist = np.zeros((steps, nx))
 
-    # Q, R, Qt from config
+    # Cost weights from config (Q: stage state, R: stage input, QN: terminal state)
     Q  = np.asarray(cfg.Q, dtype=float)
     R  = np.asarray(cfg.R, dtype=float)
-    Qt = np.asarray(cfg.Qt, dtype=float)
+    QN = np.asarray(cfg.QN, dtype=float)
 
     # Warm start for U (flattened)
     U_guess = np.zeros(nu*N)
+    u = np.zeros(nu)
 
     print(f"Sampling Time: {Ts} s, Horizon: {N}, Steps: {steps}")
 
     start_time = datetime.now()
-
-    t0 = 0.0
-    Xref, Uref = build_refs(t0, N, Ts, th0=x[2])
+    Xref = None
 
     for k in range(steps):
+        # Re-solve the NMPC problem once every control period (k_sample plant steps).
         if k % k_sample == 0:
             t0 = k * sim_dt
-            Xref, Uref = build_refs(t0, N, Ts, th0=x[2])
+            Xref, Uref = build_refs(t0, N, Ts, th0=x[2], trajectory=cfg.trajectory)
+            # Parameter vector order must match P in optimizer.py:
+            # [x0, Xref_flat, Uref_flat, Q, QN, R]
             p = np.concatenate([
                 x,
                 Xref.flatten(),
                 Uref.flatten(),
-                Q, Qt, R
+                Q, QN, R
             ])
             status = mng.call(p, initial_guess=U_guess.tolist())
             if status.is_ok():
@@ -62,12 +63,12 @@ def run_simulation(cfg, mng, sim_time=30.0, sim_dt=1e-3):
                 U_guess = sol.copy()
                 u = sol[:nu]
             else:
-                u = U_guess[:nu] if U_guess.size >= nu else np.zeros(nu)
+                # Keep the previous input if the solver fails this period.
+                print(f"  [warn] solver failed at t={k*sim_dt:.3f}s; reusing last input.")
 
-
+        # Advance the true plant with the held input (zero-order hold).
         x = np.array(unicycle_dynamics(x, u, sim_dt)).flatten()
-        
-        # ...existing code...
+
         x_hist[k, :] = x
         u_hist[k, :] = u
         xref_hist[k, :] = Xref[0, :]
